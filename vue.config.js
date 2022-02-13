@@ -10,16 +10,16 @@ module.exports = {
           appId: 'com.electron.postit',
           copyright: 'Copyright © 2022 Leekyeung Han',
           "mac": {
-            "icon": "./public/icon.png", 
+            "icon": "./public/icon.png",
           },
           win: {
               "target": [
                   "nsis"
               ],
-            icon: './public/icon.png',
+            icon: './public/icon.ico',
           },
           "nsis": {
-              "installerIcon": "./public/icon.png",
+              "installerIcon": "./public/icon.ico",
               "uninstallerIcon": "./public/favicon.ico",
           }
         }
