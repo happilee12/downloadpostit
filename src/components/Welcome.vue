@@ -1,5 +1,5 @@
 <template>
-    <v-row class="text-center">
+  <v-row dense style="width: 100%"  class="text-center">
       <v-col cols="12">
         <v-img
           :src="require('../assets/icon.png')"
