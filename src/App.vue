@@ -4,7 +4,7 @@
       <v-tabs  class="tabs" centered>
         <v-tab @click="redirectToHome">메모 보드</v-tab>
         <v-tab @click="redirectToCompleted">히스토리</v-tab>
-        <!-- <v-tab @click="redirectToDeleted">삭제</v-tab> -->
+        <v-tab @click="redirectToStatistics">통계</v-tab>
       </v-tabs>
       <v-btn @click="redirectToDeleted" icon><v-icon>mdi-delete</v-icon></v-btn>
     </v-app-bar>
@@ -31,6 +31,9 @@ export default {
     },
     redirectToDeleted () {
       this.$router.push({name: 'Deleted'}).catch(()=>{});
+    },
+    redirectToStatistics() {
+      this.$router.push({name: 'Statistics'}).catch(()=>{});
     }
   }
 };
