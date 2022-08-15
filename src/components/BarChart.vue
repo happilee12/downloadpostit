@@ -1,5 +1,5 @@
 <template>
-  <Bar
+  <LineChartGenerator
     :chart-options="chartOptions"
     :chart-data="chartData"
     :chart-id="chartId"
@@ -7,24 +7,44 @@
     :plugins="plugins"
     :css-classes="cssClasses"
     :styles="styles"
-    :width="width"
+    :width="300"
     :height="height"
   />
 </template>
 
 <script>
-import { Bar } from 'vue-chartjs/legacy'
-import { Chart as ChartJS, Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale } from 'chart.js'
+import { Line as LineChartGenerator } from 'vue-chartjs/legacy'
 
-ChartJS.register(Title, Tooltip, Legend, BarElement, CategoryScale, LinearScale)
+import {
+  Chart as ChartJS,
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  LinearScale,
+  CategoryScale,
+  PointElement
+} from 'chart.js'
+
+ChartJS.register(
+  Title,
+  Tooltip,
+  Legend,
+  LineElement,
+  LinearScale,
+  CategoryScale,
+  PointElement
+)
 
 export default {
-  name: 'BarChart',
-  components: { Bar },
+  name: 'LineChart',
+  components: {
+    LineChartGenerator
+  },
   props: {
     chartId: {
       type: String,
-      default: 'bar-chart'
+      default: 'line-chart'
     },
     datasetIdKey: {
       type: String,
@@ -32,7 +52,7 @@ export default {
     },
     width: {
       type: Number,
-      default: 400
+      default: 300
     },
     height: {
       type: Number,
@@ -47,18 +67,55 @@ export default {
       default: () => {}
     },
     plugins: {
-      type: Object,
-      default: () => {}
+      type: Array,
+      default: () => []
+    },
+    // chart data
+    chartData : {
+        type: Object,
+        default: {
+            labels: [
+            '월',
+            '화',
+            '수',
+            '목',
+            '금',
+            '토',
+            '일'
+            ],
+            datasets: [
+                {
+                    label: 'Data One',
+                    backgroundColor: '#f87979',
+                    data: [40, 39, 10, 40, 39, 80, 40]
+                }
+            ]
+        }
     }
   },
   data() {
     return {
-      chartData: {
-        labels: [ 'January', 'February', 'March' ],
-        datasets: [ { data: [40, 20, 12] } ]
-      },
+    //   chartData: {
+    //     labels: [
+    //       '월',
+    //       '화',
+    //       '수',
+    //       '목',
+    //       '금',
+    //       '토',
+    //       '일'
+    //     ],
+    //     datasets: [
+    //       {
+    //         label: 'Data One',
+    //         backgroundColor: '#f87979',
+    //         data: [40, 39, 10, 40, 39, 80, 40]
+    //       }
+    //     ]
+    //   },
       chartOptions: {
-        responsive: true
+        responsive: true,
+        maintainAspectRatio: false
       }
     }
   }

@@ -59,6 +59,7 @@ async function createWindow() {
   ipcMain.on('setTodos', (event) => { win.webContents.send('todos', appData.todo) })
   ipcMain.on('setDeleted', (event) => { win.webContents.send('deleted', appData.deleted) })
   ipcMain.on('setCompleted', (event) => { win.webContents.send('completed', appData.completed) })
+  ipcMain.on('setAll', (event) => { win.webContents.send('all', appData) })
 
   // save Data
   ipcMain.on('saveTodos', (event, todoPostitList) => {

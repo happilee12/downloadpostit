@@ -86,7 +86,12 @@ export default {
       },
       newPostit: function(){
         popSound.play()
-        this.postits.push({ "text" : "" })
+        this.postits.push({ 
+          id: moment().valueOf(),
+          text : "" , 
+          createdAt: moment().format("YYYY-MM-DD"),
+          createdAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss")
+        })
         this.isEditting.push(false)
         ipcRenderer.send('saveTodos', this.postits)
       },
@@ -94,6 +99,7 @@ export default {
         deleteSound.play()
         const target = this.postits[index]
         target.date = moment().format("YYYY-MM-DD");
+        target.datetime = moment().format("YYYY-MM-DDTHH:mm:ss");
         this.postits.splice(index, 1)
         this.isEditting.splice(index, 1)
         ipcRenderer.send('saveTodos', this.postits)
@@ -103,6 +109,7 @@ export default {
         completeSound.play()
         const target = this.postits[index]
         target.date = moment().format("YYYY-MM-DD");
+        target.datetime = moment().format("YYYY-MM-DDTHH:mm:ss");
         this.postits.splice(index, 1)
         this.isEditting.splice(index, 1)
         ipcRenderer.send('saveTodos', this.postits)

@@ -1,6 +1,82 @@
 <template>
   <v-container class="main-container" style="margin-top: 30px;">
-      <BarChart />
+    {{this.targetpostits}}
+    {{this.dailyPostitCount}}
+    <v-row justify="center">
+      <v-btn-toggle
+        v-model="dateRangeOption"
+        mandatory
+      >
+        <v-btn>
+          1W
+        </v-btn>
+        <v-btn>
+          1M
+        </v-btn>
+        <v-btn>
+          6M
+        </v-btn>
+        <v-btn>
+          1Y
+        </v-btn>
+      </v-btn-toggle>
+    </v-row>
+    <v-row justify="center">
+      <h1> {{dateRange[0]}}~{{dateRange[1]}} </h1>
+    </v-row>
+      <h2>요약</h2>
+      <v-sheet
+        elevation="1"
+        height="300"
+        width="100%"
+        rounded
+      ></v-sheet>
+      <h2>카테고리 통계</h2>
+      <v-container p-1>
+        <v-row>
+          <v-col md="6" p-10>
+            <PieChart 
+            chartId="category" 
+            :chartData="{
+                labels: ['메인', '검색', '운영', '기타'],
+                datasets: [
+                  {
+                    backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
+                    data: [40, 20, 80, 10]
+                  }
+                ]
+              }"/>
+          </v-col>
+          <v-col md="6">
+            <PieChart 
+            chartId="category" 
+            :chartData="{
+                labels: ['메인', '검색.데이터덤프', '운영.TID이관', '기타'],
+                datasets: [
+                  {
+                    backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
+                    data: [40, 20, 80, 10]
+                  }
+                ]
+              }"/>
+          </v-col>
+        </v-row>
+      </v-container>
+      
+
+      <h2>일자 통계</h2>
+      <BarChart 
+        chartId="weeklyWorkload" 
+        :chartData="{
+            labels: this.dailyPostitCount[0],
+            datasets: [
+                {
+                    backgroundColor: '#f87979',
+                    data: this.dailyPostitCount[1]
+                }
+            ]
+        }"/>
+
 
   </v-container>
 </template>
@@ -11,86 +87,70 @@ import deleteSoundEffect from '../assets/delete.mp3'
 const deleteSound = new Audio(deleteSoundEffect)
 const moment = require('moment')
 import BarChart from './BarChart.vue'
+import PieChart from './PieChart.vue'
 
 
 export default {
-    name: 'CompletedBoard',
-    components: { BarChart },
+    name: 'StatisticsBoard',
+    components: { BarChart, PieChart },
     data: () => ({
-      postits: [],
-      isEditting: [],
-      exportDates: [moment().subtract(7, "days").format("YYYY-MM-DD"), moment().format("YYYY-MM-DD")],
-      expansionToggleOn: false
+      dateRangeOption: undefined,
+      dateRange: [moment().subtract(7,'d').format('YYYY-MM-DD'), moment().add(1,'d').format("YYYY-MM-DD")],
+      allPostits: []
     }),
     mounted() {
-      ipcRenderer.send('setCompleted')
-      ipcRenderer.on('completed', (event, completedPostits) => {
-        this.postits = completedPostits
-        this.isEditting = new Array(completedPostits.length).fill(false);
+      ipcRenderer.send('setAll')
+      ipcRenderer.on('all', (event, allPostits) => {
+        this.allPostits = allPostits
+        this.dateRangeOption = 0
+        console.log(this.allPostits)
       })
     },
     computed: {
-      exportText: function () {
-        if(this.exportDates.length === 2) {
-          let output = ""
-          const startDate = this.exportDates[0]
-          const endDate = this.exportDates[1]
-          this.postits.forEach(item => {
-            if(item.date && item.date >= startDate && item.date<=endDate){
-              console.log(item)
-              output += `[${item.date}] ${item.text}\n`
-            }
+      targetpostits: function () {
+        return (this.allPostits.todo ? this.allPostits.todo : [])
+            .concat( this.allPostits.deleted ? this.allPostits.deleted.filter(p => (p.createdAt >= this.dateRange[0] && p.createdAt < this.dateRange[1] ) || (p.date >= this.dateRange[0] && p.date < this.dateRange[1] )) : [])
+            .concat( this.allPostits.completed ? this.allPostits.completed.filter(p => (p.createdAt >= this.dateRange[0] && p.createdAt < this.dateRange[1] ) || (p.date >= this.dateRange[0] && p.date < this.dateRange[1] )) : [])
+      },
+      dailyPostitCount: function() {
+        if(!this.dateRange[0]) return (undefined, undefined)
+        let targetDate = this.dateRange[0]
+        let dateList = []
+        let countList = []
+        while(targetDate < this.dateRange[1]){
+          dateList.push(targetDate)
+          const postitsAtDate = this.targetpostits.filter(p => {
+            if(p.createdAt > targetDate) return false
+            if(p.date && p.date < targetDate) return false
+            return true
           })
-          return output
-        } else {
-          return "종료일을 선택해주세요"
+          countList.push(postitsAtDate.length)
+          targetDate = moment(targetDate).add(1, 'd').format("YYYY-MM-DD")
         }
+        return [dateList, countList]
       }
     },
     methods: {
-      copyToClipboard: function() {
-          const targetItem = this.$refs.exportTextArea;
-          console.log(targetItem)
-          targetItem.select();
-          document.execCommand('copy');
+    },
+    watch: {
+      'dateRangeOption': {
+        handler(value, oldValue) {
+          switch(value){
+            case 0:
+              this.dateRange = [moment().subtract(7,'d').format('YYYY-MM-DD'), moment().add(1,'d').format("YYYY-MM-DD")]
+              break
+            case 1:
+              this.dateRange = [moment().subtract(1, 'M').format('YYYY-MM-DD'), moment().add(1,'d').format("YYYY-MM-DD")]
+              break
+            case 2:
+              this.dateRange = [moment().subtract(6, 'M').format('YYYY-MM-DD'), moment().add(1,'d').format("YYYY-MM-DD")]
+              break
+            case 3:
+              this.dateRange = [moment().subtract(1,'y').format('YYYY-MM-DD'), moment().add(1,'d').format("YYYY-MM-DD")]
+              break
+          }
+        },
       },
-      expansionToggle: function(e){
-        this.expansionToggleOn = !this.expansionToggleOn
-      },
-      handleTabInput: function(e){
-        if (e.key == 'Tab') {
-          e.preventDefault();
-          const targetTextArea = e.target
-          var start = targetTextArea.selectionStart;
-          var end = targetTextArea.selectionEnd;
-
-          // set textarea value to: text before caret + tab + text after caret
-          targetTextArea.value = targetTextArea.value.substring(0, start) +
-            "\t" + targetTextArea.value.substring(end);
-
-          // put caret at right position again
-          targetTextArea.selectionStart = targetTextArea.selectionEnd = start + 1;
-        }
-      },
-      endEditting: function(index){
-        this.$set(this.isEditting, index, false)
-        ipcRenderer.send('saveCompleted', this.postits)
-        console.log("ended editting", index);
-      },
-      startEditting: function(index){
-        this.$set(this.isEditting, index, true)
-        const targetItem = this.$refs.postitTextarea[index];
-        setTimeout(function() { targetItem.focus()}, 0);
-        console.log("started editting", index);
-      },
-      remove: function (index) {
-        deleteSound.play()
-        const target = this.postits[index]
-        this.postits.splice(index, 1)
-        this.isEditting.splice(index, 1)
-        ipcRenderer.send('saveCompleted', this.postits)
-        ipcRenderer.send('addToDeletedAndSave', target)
-      }
     }
 
   }
