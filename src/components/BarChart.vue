@@ -74,20 +74,12 @@ export default {
     chartData : {
         type: Object,
         default: {
-            labels: [
-            '월',
-            '화',
-            '수',
-            '목',
-            '금',
-            '토',
-            '일'
-            ],
+            labels: [ '월', '화', '수', '목', '금', '토', '일' ],
             datasets: [
                 {
-                    label: 'Data One',
-                    backgroundColor: '#f87979',
-                    data: [40, 39, 10, 40, 39, 80, 40]
+                  yAxisID: 'y-axis-id',
+                  backgroundColor: '#f87979',
+                  data: [40, 39, 10, 40, 39, 80, 40]
                 }
             ]
         }
@@ -95,27 +87,18 @@ export default {
   },
   data() {
     return {
-    //   chartData: {
-    //     labels: [
-    //       '월',
-    //       '화',
-    //       '수',
-    //       '목',
-    //       '금',
-    //       '토',
-    //       '일'
-    //     ],
-    //     datasets: [
-    //       {
-    //         label: 'Data One',
-    //         backgroundColor: '#f87979',
-    //         data: [40, 39, 10, 40, 39, 80, 40]
-    //       }
-    //     ]
-    //   },
       chartOptions: {
         responsive: true,
-        maintainAspectRatio: false
+        maintainAspectRatio: false,
+        plugins: { legend: { display: false }},
+        scales: { 
+          yAxes : [{
+              ticks: {
+                min: 0,
+                beginAtZero: true
+              }
+            }]
+          }
       }
     }
   }

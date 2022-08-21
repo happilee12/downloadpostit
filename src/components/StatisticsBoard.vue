@@ -1,7 +1,5 @@
 <template>
   <v-container class="main-container" style="margin-top: 30px;">
-    {{this.targetpostits}}
-    {{this.dailyPostitCount}}
     <v-row justify="center">
       <v-btn-toggle
         v-model="dateRangeOption"
@@ -38,11 +36,11 @@
             <PieChart 
             chartId="category" 
             :chartData="{
-                labels: ['메인', '검색', '운영', '기타'],
+                labels: overallCategoryCount.category.label,
                 datasets: [
                   {
-                    backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
-                    data: [40, 20, 80, 10]
+                    backgroundColor: overallCategoryCount.category.color,
+                    data: overallCategoryCount.category.data,
                   }
                 ]
               }"/>
@@ -51,11 +49,11 @@
             <PieChart 
             chartId="category" 
             :chartData="{
-                labels: ['메인', '검색.데이터덤프', '운영.TID이관', '기타'],
+                labels: overallCategoryCount.subcategory.label,
                 datasets: [
                   {
-                    backgroundColor: ['#41B883', '#E46651', '#00D8FF', '#DD1B16'],
-                    data: [40, 20, 80, 10]
+                    backgroundColor: overallCategoryCount.subcategory.color,
+                    data: overallCategoryCount.subcategory.data,
                   }
                 ]
               }"/>
@@ -68,11 +66,12 @@
       <BarChart 
         chartId="weeklyWorkload" 
         :chartData="{
-            labels: this.dailyPostitCount[0],
+            labels: this.dailyPostitCount.dateList,
             datasets: [
                 {
                     backgroundColor: '#f87979',
-                    data: this.dailyPostitCount[1]
+                    data: this.dailyPostitCount.countList,
+                    yAxisID: 'y-axis-id',
                 }
             ]
         }"/>
@@ -127,10 +126,108 @@ export default {
           countList.push(postitsAtDate.length)
           targetDate = moment(targetDate).add(1, 'd').format("YYYY-MM-DD")
         }
-        return [dateList, countList]
+        return { dateList, countList } 
+      },
+      overallCategoryCount: function() {
+        const categoryMap = {}
+        for(const postit of this.targetpostits){
+          const firstline = postit.text.split("\n")[0]
+          if(firstline.startsWith(".")){
+            const mainCategoryName = firstline.split('.')[1]
+
+            // update main cateogry count
+            if (! (mainCategoryName in categoryMap)) categoryMap[mainCategoryName] = {
+              count : 0,
+              subcategory : {}
+            }
+            categoryMap[mainCategoryName].count += 1
+
+            // update sub cateogry count
+            if (! (firstline in categoryMap[mainCategoryName].subcategory)) categoryMap[mainCategoryName].subcategory[firstline] = 0
+            categoryMap[mainCategoryName].subcategory[firstline] += 1
+          } 
+          // else {
+          //   // update main cateogry count
+          //   if (! ('기타' in categoryMap)) {
+          //     categoryMap['기타'] = {
+          //       count : 0,
+          //       subcategory : {}
+          //     }
+          //   }
+          //   categoryMap['기타'].count += 1
+          // }
+        }
+
+        if (('기타' in categoryMap)) {
+          categoryMap['기타'].subcategory = {'.기타' : categoryMap['기타'].count }
+        }
+
+        // return 데이터 구성
+        
+
+        const category = {
+          label: Object.keys(categoryMap),
+          // color: categoryColorPalette.slice(0, Object.keys(categoryMap).length).map(colorFamily => colorFamily[0]),
+          color: this.createColorList('category', Object.keys(categoryMap).length, 0),
+          data: Object.values(categoryMap).map(c => c.count)
+        }
+        const subcategory = {
+          label: [],
+          color: [],
+          data: []
+        }
+        console.log("category", category)
+
+        let i = 0
+        for(const c in categoryMap){
+          const subcategoryObj = categoryMap[c].subcategory
+          console.log(i, subcategoryObj, Object.keys(subcategoryObj), Object.values(subcategoryObj))
+          subcategory.label = subcategory.label.concat(Object.keys(subcategoryObj))
+          subcategory.color = subcategory.color.concat(this.createColorList('subcategory', Object.keys(subcategoryObj).length, i)),
+          // subcategory.color= subcategory.color.concat(categoryColorPalette[i%categoryColorPalette.length].slice(0, Object.keys(subcategoryObj).length))
+          subcategory.data = subcategory.data.concat(Object.values(subcategoryObj))
+          i += 1
+          console.log('subcategory', subcategory)
+        }
+        console.log("subcategory", subcategory)
+
+        return { category, subcategory}
       }
+      
     },
     methods: {
+      createColorList(type, length, i) {
+        const categoryColorPalette = [ 
+          ['#2196F3', '#42A5F5', '#64B5F6', '#90CAF9', '#BBDEFB', '#E3F2FD' ], // blue
+          ['#009688', '#26A69A', '#4DB6AC', '#80CBC4', '#B2DFDB', '#E0F2F1'], // teal
+          ['#FFEB3B', '#FFEE58', '#FFF176', '#FFF59D', '#FFF9C4', '#FFFDE7' ], //yellow
+          ['#FF9800', '#FFA726', '#FFB74D', '#FFE0B2', '#FFF3E0', '#FFCC80'], // orange
+          ['#673AB7', '#7E57C2', '#9575CD', '#B39DDB', '#D1C4E9', '#EDE7F6'], // purple
+          ['#E91E63', '#EC407A', '#F06292', '#F48FB1', '#F8BBD0', '#FCE4EC'], // pink
+          ['#795548', '#8D6E63', '#A1887F', '#BCAAA4', '#D7CCC8', '#EFEBE9'], // brown
+          ['#607D8B', '#78909C', '#90A4AE', '#B0BEC5', '#CFD8DC', '#ECEFF1'], // brown
+        ]
+        if(type == 'category'){
+          let colorList = []
+          let index = 0
+          while(index < length){
+            colorList.push(categoryColorPalette[index%categoryColorPalette.length][0])
+            index+=1
+          }
+          return colorList
+        } else if(type == 'subcategory'){
+          const targetColorFamily = categoryColorPalette[i%categoryColorPalette.length]
+          console.log('targetColorFamily', targetColorFamily)
+          let colorList = []
+          let index = 0
+          while(index < length){
+            colorList.push(targetColorFamily[index%targetColorFamily.length])
+            index+=1
+            console.log('colorList', colorList)
+          }
+          return colorList
+        }
+      }
     },
     watch: {
       'dateRangeOption': {
