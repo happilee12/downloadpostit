@@ -167,7 +167,6 @@ export default {
 
         const category = {
           label: Object.keys(categoryMap),
-          // color: categoryColorPalette.slice(0, Object.keys(categoryMap).length).map(colorFamily => colorFamily[0]),
           color: this.createColorList('category', Object.keys(categoryMap).length, 0),
           data: Object.values(categoryMap).map(c => c.count)
         }
@@ -184,7 +183,6 @@ export default {
           console.log(i, subcategoryObj, Object.keys(subcategoryObj), Object.values(subcategoryObj))
           subcategory.label = subcategory.label.concat(Object.keys(subcategoryObj))
           subcategory.color = subcategory.color.concat(this.createColorList('subcategory', Object.keys(subcategoryObj).length, i)),
-          // subcategory.color= subcategory.color.concat(categoryColorPalette[i%categoryColorPalette.length].slice(0, Object.keys(subcategoryObj).length))
           subcategory.data = subcategory.data.concat(Object.values(subcategoryObj))
           i += 1
           console.log('subcategory', subcategory)

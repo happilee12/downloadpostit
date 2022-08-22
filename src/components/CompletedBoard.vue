@@ -67,7 +67,7 @@ export default {
     mounted() {
       ipcRenderer.send('setCompleted')
       ipcRenderer.on('completed', (event, completedPostits) => {
-        this.postits = completedPostits
+        this.postits = [...completedPostits].reverse()
         this.isEditting = new Array(completedPostits.length).fill(false);
       })
     },
@@ -116,7 +116,7 @@ export default {
       },
       endEditting: function(index){
         this.$set(this.isEditting, index, false)
-        ipcRenderer.send('saveCompleted', this.postits)
+        ipcRenderer.send('saveCompleted', [...this.postits].reverse())
         console.log("ended editting", index);
       },
       startEditting: function(index){
@@ -130,7 +130,7 @@ export default {
         const target = this.postits[index]
         this.postits.splice(index, 1)
         this.isEditting.splice(index, 1)
-        ipcRenderer.send('saveCompleted', this.postits)
+        ipcRenderer.send('saveCompleted', [...this.postits].reverse())
         ipcRenderer.send('addToDeletedAndSave', target)
       }
     }
