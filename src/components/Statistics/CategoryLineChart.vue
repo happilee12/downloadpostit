@@ -1,19 +1,23 @@
 <template>
-  <v-container class="main-container" style="margin-top: 30px">
-    <BarChart chartId="weeklyWorkload" :chartData="lineChartData" />
+  <v-container>
+    <LineChart :chartId="chartId" :chartData="lineChartData" />
   </v-container>
 </template>
 
 <script>
-import BarChart from "@/components/VueChart/BarChart.vue";
+import LineChart from "@/components/VueChart/LineChart.vue";
 import {
   getDateListInBetween,
-  getMemoCountDataset,
+  getTimeSeriesCetegoryCountDataset,
 } from "@/js/categoryStstisticsChart";
 export default {
-  name: "CategoryStatisticsChart",
-  components: { BarChart },
+  name: "CategoryLineChart",
+  components: { LineChart },
   props: {
+    chartId: {
+      type: String,
+      default: "categoryLineChart",
+    },
     memoList: {
       type: Array,
     },
@@ -22,8 +26,6 @@ export default {
       default: [],
     },
   },
-  data: () => ({}),
-  mounted() {},
   computed: {
     lineChartData: function () {
       try {
@@ -31,7 +33,10 @@ export default {
           this.dateRange[0],
           this.dateRange[1]
         );
-        const datasets = getMemoCountDataset(this.memoList, dateList);
+        const datasets = getTimeSeriesCetegoryCountDataset(
+          this.memoList,
+          dateList
+        );
         return {
           labels: dateList,
           datasets,
@@ -45,7 +50,6 @@ export default {
       }
     },
   },
-  methods: {},
 };
 </script>
 

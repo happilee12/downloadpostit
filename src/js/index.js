@@ -9,18 +9,14 @@ const categoryColorPalette = [
   ["#607D8B", "#78909C", "#90A4AE", "#B0BEC5", "#CFD8DC", "#ECEFF1"], // brown
 ];
 
-export const categoryColorList = () => {
-  return categoryColorPalette.map((item) => item[0]);
+const PALETTE_LENGTH = categoryColorPalette.length;
+
+export const categoryColor = (index) => {
+  return categoryColorPalette[index % PALETTE_LENGTH][0];
+  // return categoryColorPalette.map((item) => item[0]);
 };
 
-export const subcategoryColorList = () => {
-  const targetColorFamily =
-    categoryColorPalette[i % categoryColorPalette.length];
-  let colorList = [];
-  let index = 0;
-  while (index < length) {
-    colorList.push(targetColorFamily[index % targetColorFamily.length]);
-    index += 1;
-  }
-  return colorList;
+export const subcategoryColor = (index, subindex) => {
+  const colorLength = categoryColorPalette[index % PALETTE_LENGTH].length;
+  return categoryColorPalette[index % PALETTE_LENGTH][subindex % colorLength];
 };

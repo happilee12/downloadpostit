@@ -1,5 +1,5 @@
 const moment = require("moment");
-import { categoryColorList } from "@/js/index";
+import { categoryColor, subcategoryColor } from "@/js/index";
 
 export const getDateListInBetween = (startDate, endDate) => {
   try {
@@ -17,7 +17,65 @@ export const getDateListInBetween = (startDate, endDate) => {
   }
 };
 
-export const getMemoCountDataset = (memoList, dateList) => {
+/**
+ * vue-chartjs linechart dataset 형태로 변환
+ */
+export const getCategoryRatioDataset = (memoList) => {
+  const categoryBackgroundColorList = [];
+  const categoryDataList = [];
+  const categoryList = [];
+  const subcategoryBackgroundColorList = [];
+  const subcategoryDataList = [];
+  const subcategoryList = [];
+
+  const categoryGrouped = groupObjectListByKey(memoList, "category");
+  Object.keys(categoryGrouped).forEach((categoryName, index) => {
+    categoryList.push(categoryName);
+    categoryBackgroundColorList.push(categoryColor(index));
+    categoryDataList.push(categoryGrouped[categoryName].length);
+
+    /**
+     * subcategory정보 구성
+     */
+    const subcategoryGrouped = groupObjectListByKey(
+      categoryGrouped[categoryName],
+      "subCategory"
+    );
+    Object.keys(subcategoryGrouped).forEach((subcategoryName, subindex) => {
+      subcategoryList.push(subcategoryName);
+      subcategoryBackgroundColorList.push(subcategoryColor(index, subindex));
+      subcategoryDataList.push(subcategoryGrouped[subcategoryName].length);
+    });
+  });
+  const category = {
+    labels: categoryList,
+    datasets: [
+      {
+        backgroundColor: categoryBackgroundColorList,
+        data: categoryDataList,
+      },
+    ],
+  };
+  const subcategory = {
+    labels: subcategoryList,
+    datasets: [
+      {
+        backgroundColor: subcategoryBackgroundColorList,
+        data: subcategoryDataList,
+      },
+    ],
+  };
+
+  return {
+    category,
+    subcategory,
+  };
+};
+
+/**
+ * vue-chartjs linechart dataset 형태로 변환
+ */
+export const getTimeSeriesCetegoryCountDataset = (memoList, dateList) => {
   /**
    * lineCharDatasets 구성
    * {
@@ -50,9 +108,10 @@ export const getMemoCountDataset = (memoList, dateList) => {
   Object.keys(lineCharDatasets).forEach((categoryData, index) => {
     result.push({
       label: categoryData,
-      borderColor: categoryColorList()[index],
-      backgroundColor: categoryColorList()[index],
+      borderColor: categoryColor(index),
+      backgroundColor: categoryColor(index),
       borderWidth: 1,
+      pointRadius: 1,
       data: lineCharDatasets[categoryData],
     });
   });
