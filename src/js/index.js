@@ -1,0 +1,26 @@
+const categoryColorPalette = [
+  ["#2196F3", "#42A5F5", "#64B5F6", "#90CAF9", "#BBDEFB", "#E3F2FD"], // blue
+  ["#009688", "#26A69A", "#4DB6AC", "#80CBC4", "#B2DFDB", "#E0F2F1"], // teal
+  ["#FFEB3B", "#FFEE58", "#FFF176", "#FFF59D", "#FFF9C4", "#FFFDE7"], //yellow
+  ["#FF9800", "#FFA726", "#FFB74D", "#FFE0B2", "#FFF3E0", "#FFCC80"], // orange
+  ["#673AB7", "#7E57C2", "#9575CD", "#B39DDB", "#D1C4E9", "#EDE7F6"], // purple
+  ["#E91E63", "#EC407A", "#F06292", "#F48FB1", "#F8BBD0", "#FCE4EC"], // pink
+  ["#795548", "#8D6E63", "#A1887F", "#BCAAA4", "#D7CCC8", "#EFEBE9"], // brown
+  ["#607D8B", "#78909C", "#90A4AE", "#B0BEC5", "#CFD8DC", "#ECEFF1"], // brown
+];
+
+export const categoryColorList = () => {
+  return categoryColorPalette.map((item) => item[0]);
+};
+
+export const subcategoryColorList = () => {
+  const targetColorFamily =
+    categoryColorPalette[i % categoryColorPalette.length];
+  let colorList = [];
+  let index = 0;
+  while (index < length) {
+    colorList.push(targetColorFamily[index % targetColorFamily.length]);
+    index += 1;
+  }
+  return colorList;
+};

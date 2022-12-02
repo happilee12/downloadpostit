@@ -13,7 +13,7 @@
 </template>
 
 <script>
-import { Line as LineChartGenerator } from 'vue-chartjs/legacy'
+import { Line as LineChartGenerator } from "vue-chartjs/legacy";
 
 import {
   Chart as ChartJS,
@@ -23,8 +23,8 @@ import {
   LineElement,
   LinearScale,
   CategoryScale,
-  PointElement
-} from 'chart.js'
+  PointElement,
+} from "chart.js";
 
 ChartJS.register(
   Title,
@@ -34,73 +34,75 @@ ChartJS.register(
   LinearScale,
   CategoryScale,
   PointElement
-)
+);
 
 export default {
-  name: 'LineChart',
+  name: "LineChart",
   components: {
-    LineChartGenerator
+    LineChartGenerator,
   },
   props: {
     chartId: {
       type: String,
-      default: 'line-chart'
+      default: "line-chart",
     },
     datasetIdKey: {
       type: String,
-      default: 'label'
+      default: "label",
     },
     width: {
       type: Number,
-      default: 300
+      default: 300,
     },
     height: {
       type: Number,
-      default: 400
+      default: 400,
     },
     cssClasses: {
-      default: '',
-      type: String
+      default: "",
+      type: String,
     },
     styles: {
       type: Object,
-      default: () => {}
+      default: () => {},
     },
     plugins: {
       type: Array,
-      default: () => []
+      default: () => [],
     },
     // chart data
-    chartData : {
-        type: Object,
-        default: {
-            labels: [ '월', '화', '수', '목', '금', '토', '일' ],
-            datasets: [
-                {
-                  yAxisID: 'y-axis-id',
-                  backgroundColor: '#f87979',
-                  data: [40, 39, 10, 40, 39, 80, 40]
-                }
-            ]
-        }
-    }
+    chartData: {
+      type: Object,
+      // default: {
+      //   labels: ["월", "화", "수", "목", "금", "토", "일"],
+      //   datasets: [
+      //     {
+      //       yAxisID: "y-axis-id",
+      //       backgroundColor: "#f87979",
+      //       data: [40, 39, 10, 40, 39, 80, 40],
+      //     },
+      //   ],
+      // },
+    },
   },
   data() {
     return {
       chartOptions: {
         responsive: true,
         maintainAspectRatio: false,
-        plugins: { legend: { display: false }},
-        scales: { 
-          yAxes : [{
+        plugins: { legend: { display: true } },
+        scales: {
+          yAxes: [
+            {
               ticks: {
                 min: 0,
-                beginAtZero: true
-              }
-            }]
-          }
-      }
-    }
-  }
-}
+                beginAtZero: true,
+              },
+            },
+          ],
+        },
+      },
+    };
+  },
+};
 </script>
