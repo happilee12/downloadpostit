@@ -1,6 +1,6 @@
 <template>
   <v-row>
-    <v-col md="6" p-10>
+    <v-col md="6" pa-10>
       <PieChart chartId="1" :chartData="pieChartData.category" />
     </v-col>
     <v-col md="6">

@@ -1,5 +1,5 @@
 <template>
-  <v-container class="main-container">
+  <v-container mt-5>
     <v-row dense align="center" justify="center" style="height: 60px">
       <v-btn
         class="new-postit-btn"

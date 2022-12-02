@@ -1,29 +1,44 @@
 <template>
-  <v-container class="main-container" style="margin-top: 30px">
-    <v-row justify="center">
-      <v-btn-toggle v-model="dateRangeOption" mandatory>
-        <v-btn> 1W </v-btn>
-        <v-btn> 1M </v-btn>
-        <v-btn> 6M </v-btn>
-        <v-btn> 1Y </v-btn>
-      </v-btn-toggle>
-    </v-row>
-    <v-row justify="center">
-      <h1>{{ dateRange[0] }}~{{ dateRange[1] }}</h1>
-    </v-row>
+  <v-container mt-5>
+    <v-container>
+      <v-container d-flex justify-center>
+        <v-btn-toggle v-model="dateRangeOption" mandatory>
+          <v-btn> 1W </v-btn>
+          <v-btn> 1M </v-btn>
+          <v-btn> 6M </v-btn>
+          <v-btn> 1Y </v-btn>
+        </v-btn-toggle>
+      </v-container>
 
-    <h2>카테고리 통계</h2>
-    <CategoryPieChart :memoList="targetpostits" :dateRange="dateRange" />
+      <div>{{ dateRange[0] }}~{{ dateRange[1] }}</div>
+      <div>
+        # of Memos :
+        {{ targetpostits.length }}
+      </div>
+    </v-container>
 
-    <h2>일자 통계</h2>
-    <CategoryLineChart
-      chartId="categoryLineChart"
-      :memoList="targetpostits"
-      :dateRange="dateRange"
-    />
+    <v-container>
+      <h1>📈 Categories</h1>
+      <v-container mt-3 mb-5 pa-8 class="data-area">
+        <CategoryPieChart :memoList="targetpostits" :dateRange="dateRange" />
+      </v-container>
+    </v-container>
 
-    <h2>요약</h2>
-    <v-sheet elevation="1" height="300" width="100%" rounded></v-sheet>
+    <v-container>
+      <h1>📈 Daily Changes</h1>
+      <v-container mt-3 mb-5 pa-8 class="data-area">
+        <CategoryLineChart
+          chartId="categoryLineChart"
+          :memoList="targetpostits"
+          :dateRange="dateRange"
+        />
+      </v-container>
+    </v-container>
+
+    <v-container>
+      <h1>📜 Summary</h1>
+      <v-container mt-3 mb-5 pa-5 class="data-area"> </v-container>
+    </v-container>
   </v-container>
 </template>
 
@@ -115,4 +130,9 @@ export default {
 
 <style lang="scss">
 @import "../assets/common";
+
+.data-area {
+  background-color: white;
+  border-radius: 5px;
+}
 </style>

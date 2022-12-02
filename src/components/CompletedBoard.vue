@@ -1,5 +1,5 @@
 <template>
-  <v-container class="main-container" style="margin-top: 30px">
+  <v-container mt-5>
     <div class="expansion-panel">
       <div class="expansion-panel-header">
         <v-row dense justify-content="start" @click="expansionToggle">
