@@ -12,9 +12,21 @@ export const getDateListInBetween = (startDate, endDate) => {
 
     return dateList;
   } catch (e) {
-    console.log(e);
+    console.error(e);
     return [];
   }
+};
+
+export const memoGroupedByCategory = (memoList) => {
+  const categoryGrouped = groupObjectListByKey(memoList, "category");
+  const result = {};
+  Object.keys(categoryGrouped).forEach((categoryName, index) => {
+    result[categoryName] = groupObjectListByKey(
+      categoryGrouped[categoryName],
+      "subCategory"
+    );
+  });
+  return result;
 };
 
 /**

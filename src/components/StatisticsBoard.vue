@@ -37,7 +37,9 @@
 
     <v-container>
       <h1>📜 Summary</h1>
-      <v-container mt-3 mb-5 pa-5 class="data-area"> </v-container>
+      <v-container mt-3 mb-5 pa-5 class="data-area">
+        <Summary :memoList="targetpostits" />
+      </v-container>
     </v-container>
   </v-container>
 </template>
@@ -48,10 +50,11 @@ const moment = require("moment");
 
 import CategoryLineChart from "@/components/Statistics/CategoryLineChart.vue";
 import CategoryPieChart from "@/components/Statistics/CategoryPieChart.vue";
+import Summary from "@/components/Statistics/Summary.vue";
 
 export default {
   name: "StatisticsBoard",
-  components: { CategoryLineChart, CategoryPieChart },
+  components: { CategoryLineChart, CategoryPieChart, Summary },
   data: () => ({
     dateRangeOption: undefined,
     dateRange: [
