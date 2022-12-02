@@ -5,8 +5,7 @@
 </template>
 
 <script>
-const moment = require("moment");
-import BarChart from "../../components/BarChart.vue";
+import BarChart from "@/components/VueChart/BarChart.vue";
 import {
   getDateListInBetween,
   getMemoCountDataset,

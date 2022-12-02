@@ -60,8 +60,9 @@
 <script>
 const { ipcRenderer } = require("electron");
 const moment = require("moment");
-import BarChart from "./BarChart.vue";
-import PieChart from "./PieChart.vue";
+
+import BarChart from "@/components/VueChart/BarChart.vue";
+import PieChart from "@/components/VueChart/PieChart.vue";
 import CategoryStatisticsChart from "./Statistics/CategoryStatisticsChart.vue";
 
 export default {
