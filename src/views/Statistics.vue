@@ -6,6 +6,7 @@
         <v-btn-toggle v-model="dateRangeOption" mandatory>
           <v-btn> 1W </v-btn>
           <v-btn> 1M </v-btn>
+          <v-btn> 3M </v-btn>
           <v-btn> 6M </v-btn>
           <v-btn> 1Y </v-btn>
         </v-btn-toggle>
@@ -118,11 +119,17 @@ export default {
             break;
           case 2:
             this.dateRange = [
-              moment().subtract(6, "M").format("YYYY-MM-DD"),
+              moment().subtract(3, "M").format("YYYY-MM-DD"),
               moment().add(1, "d").format("YYYY-MM-DD"),
             ];
             break;
           case 3:
+            this.dateRange = [
+              moment().subtract(6, "M").format("YYYY-MM-DD"),
+              moment().add(1, "d").format("YYYY-MM-DD"),
+            ];
+            break;
+          case 4:
             this.dateRange = [
               moment().subtract(1, "y").format("YYYY-MM-DD"),
               moment().add(1, "d").format("YYYY-MM-DD"),
