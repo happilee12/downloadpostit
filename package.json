@@ -16,7 +16,7 @@
   "dependencies": {
     "chart.js": "^3.9.1",
     "core-js": "^3.6.5",
-    "electron-builder": "^22.10.5",
+    "electron-builder": "^23.6.0",
     "moment": "^2.29.1",
     "vue": "^2.6.11",
     "vue-chartjs": "^4.1.1",
@@ -37,6 +37,11 @@
     "vue-cli-plugin-vuetify": "~2.4.5",
     "vue-template-compiler": "^2.6.11",
     "vuetify-loader": "^1.7.0"
+  },
+  "overrides": {
+    "vue-cli-plugin-electron-builder": {
+      "electron-builder": "^23.6.0"
+    }
   },
   "browserslist": [
     "> 1%",
