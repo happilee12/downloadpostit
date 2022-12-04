@@ -1,3 +1,5 @@
+const moment = require("moment");
+
 const categoryColorPalette = [
   ["#2196F3", "#42A5F5", "#64B5F6", "#90CAF9", "#BBDEFB", "#E3F2FD"], // blue
   ["#009688", "#26A69A", "#4DB6AC", "#80CBC4", "#B2DFDB", "#E0F2F1"], // teal
@@ -37,4 +39,24 @@ export const filterObjectValues = (targetObject, condition) => {
     }
   });
   return newObject;
+};
+
+/** 메모 카테고리 업데이트 */
+export const setCategory = (memoData) => {
+  if (memoData.text[0] == ".") {
+    const firstLine = memoData.text.split("\n")[0];
+    memoData.category = firstLine.split(".")[1];
+    memoData.subCategory = firstLine;
+  } else {
+    memoData.category = undefined;
+    memoData.subCategory = undefined;
+  }
+  return memoData;
+};
+
+export const getTimestamp = (tag) => {
+  return {
+    [`${tag}At`]: moment().format("YYYY-MM-DD"),
+    [`${tag}AtDateTime`]: moment().format("YYYY-MM-DDTHH:mm:ss"),
+  };
 };

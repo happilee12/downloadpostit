@@ -35,11 +35,13 @@
 import Welcome from "./Welcome.vue";
 const { ipcRenderer } = require("electron");
 const moment = require("moment");
+import Memo from "@/components/Memo.vue";
 import popSoundEffect from "../assets/pop.mp3";
 import completeSoundEffect from "../assets/complete.mp3";
 import deleteSoundEffect from "../assets/delete.mp3";
-import Memo from "@/components/Memo.vue";
 import { MemoStatus } from "@/js/constants";
+import { getTimestamp } from "@/js/common";
+
 const popSound = new Audio(popSoundEffect);
 const completeSound = new Audio(completeSoundEffect);
 const deleteSound = new Audio(deleteSoundEffect);
@@ -65,8 +67,7 @@ export default {
       const newMemoId = moment().valueOf();
       this.$set(this.memoItems, newMemoId, {
         text: "",
-        createdAt: moment().format("YYYY-MM-DD"),
-        createdAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+        ...getTimestamp("created"),
         status: MemoStatus.TODO,
       });
       ipcRenderer.send("saveTodos", this.memoItems);
@@ -76,8 +77,7 @@ export default {
       ipcRenderer.send("addToDeletedAndSave", memoId, {
         ...this.memoItems[memoId],
         status: MemoStatus.DELETED,
-        deletedAt: moment().format("YYYY-MM-DD"),
-        deletedAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+        ...getTimestamp("deleted"),
       }); // deleted 데이터에 추가
       this.$delete(this.memoItems, memoId); // 화면에서 삭제
       ipcRenderer.send("deleteFromTodos", memoId); // To-do 데이터에서 삭제
@@ -87,8 +87,7 @@ export default {
       ipcRenderer.send("addToCompletedAndSave", memoId, {
         ...this.memoItems[memoId],
         status: MemoStatus.COMPLETED,
-        completedAt: moment().format("YYYY-MM-DD"),
-        completedAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+        ...getTimestamp("completed"),
       }); // completed 데이터에 추가
       this.$delete(this.memoItems, memoId); // 화면에서 삭제
       ipcRenderer.send("deleteFromTodos", memoId); // To-do 데이터에서 삭제

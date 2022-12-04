@@ -45,7 +45,7 @@ import deleteSoundEffect from "../assets/delete.mp3";
 import Memo from "@/components/Memo.vue";
 const deleteSound = new Audio(deleteSoundEffect);
 const ALL = "ALL";
-import { filterObjectValues } from "@/js/common";
+import { filterObjectValues, getTimestamp } from "@/js/common";
 import { MemoStatus } from "@/js/constants";
 
 export default {
@@ -111,8 +111,7 @@ export default {
       ipcRenderer.send("addToDeletedAndSave", memoId, {
         ...targetMemo,
         status: MemoStatus.DELETED,
-        deletedAt: moment().format("YYYY-MM-DD"),
-        deletedAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+        ...getTimestamp("deleted"),
       });
     },
     redirectToDeleted() {

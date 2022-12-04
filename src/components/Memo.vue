@@ -44,7 +44,7 @@
 </template>
 
 <script>
-import { setCategory, Memo } from "@/js/memo";
+import { setCategory } from "@/js/common";
 import { MemoStatus } from "@/js/constants";
 
 export default {
