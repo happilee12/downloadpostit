@@ -18,7 +18,7 @@ export default {
       type: String,
       default: "categoryLineChart",
     },
-    memoList: {
+    memoItems: {
       type: Array,
     },
     dateRange: {
@@ -34,7 +34,7 @@ export default {
           this.dateRange[1]
         );
         const datasets = getTimeSeriesCetegoryCountDataset(
-          this.memoList,
+          this.memoItems,
           dateList
         );
         return {

@@ -6,43 +6,25 @@
         elevation="3"
         color="secondary"
         @click="newPostit"
-        >새 포스트잇 🎀
+        >Add Memo
       </v-btn>
     </v-row>
-    <v-row
-      style="width: 100%"
-      dense
-      justify-content="start"
-      v-if="postits.length > 0"
-    >
+    <v-row style="width: 100%" dense justify-content="start" v-if="memoItems">
       <v-col
         cols="12"
         sm="6"
         md="4"
         lg="3"
-        v-for="(postit, index) in postits"
-        :key="`postit-` + index"
+        v-for="(memoObject, id) in memoItems"
+        :key="`memoObject-` + id"
       >
-        <v-card class="postit-card mx-auto">
-          <textarea
-            class="postit-editting-textarea"
-            :ref="'postitTextarea'"
-            @focus="startEditting(index)"
-            @blur="endEditting(index)"
-            @keydown="handleTabInput"
-            v-model="postit.text"
-            placeholder="새 포스트잇"
-          ></textarea>
-          <v-card-subtitle class="pb-0"> # {{ index }} </v-card-subtitle>
-          <v-row class="postit-button-area" v-if="!isEditting[index]">
-            <v-card-actions>
-              <v-btn color="primary" text @click="remove(index)"> 삭제 </v-btn>
-              <v-btn color="primary" text @click="complete(index)">
-                완료
-              </v-btn>
-            </v-card-actions>
-          </v-row>
-        </v-card>
+        <Memo
+          :id="id"
+          :memoObject="memoObject"
+          :idEditting="false"
+          :remove="remove"
+          :complete="complete"
+        />
       </v-col>
     </v-row>
     <v-row v-else><Welcome></Welcome></v-row>
@@ -56,87 +38,54 @@ const moment = require("moment");
 import popSoundEffect from "../assets/pop.mp3";
 import completeSoundEffect from "../assets/complete.mp3";
 import deleteSoundEffect from "../assets/delete.mp3";
-import { setCategory } from "@/js/memo";
+import Memo from "@/components/Memo.vue";
+import { MemoStatus } from "@/js/constants";
 const popSound = new Audio(popSoundEffect);
 const completeSound = new Audio(completeSoundEffect);
 const deleteSound = new Audio(deleteSoundEffect);
 
 export default {
-  components: { Welcome },
+  components: { Welcome, Memo },
   name: "Board",
   data: () => ({
-    postits: [],
-    isEditting: [],
+    memoItems: {},
+    memoInstance: {},
   }),
   mounted() {
     ipcRenderer.send("setTodos");
-    ipcRenderer.on("todos", (event, todos) => {
-      this.postits = todos;
-      this.isEditting = new Array(todos.length).fill(false);
+    ipcRenderer.once("todos", (event, todos) => {
+      this.memoItems = todos;
+      console.log("this.postits", this.memoItems);
     });
+    this.memoInstance = new Memo();
+    console.log("memoInstance", this.memoInstance);
   },
   computed: {},
   methods: {
-    handleTabInput: function (e) {
-      if (e.key == "Tab") {
-        e.preventDefault();
-        const targetTextArea = e.target;
-        var start = targetTextArea.selectionStart;
-        var end = targetTextArea.selectionEnd;
-
-        // set textarea value to: text before caret + tab + text after caret
-        targetTextArea.value =
-          targetTextArea.value.substring(0, start) +
-          "\t" +
-          targetTextArea.value.substring(end);
-
-        // put caret at right position again
-        targetTextArea.selectionStart = targetTextArea.selectionEnd = start + 1;
-      }
-    },
-    endEditting: function (index) {
-      this.$set(this.isEditting, index, false);
-      this.postits[index] = setCategory(this.postits[index]);
-      console.log(this.postits[index]);
-      ipcRenderer.send("saveTodos", this.postits);
-    },
-    startEditting: function (index) {
-      this.$set(this.isEditting, index, true);
-      const targetItem = this.$refs.postitTextarea[index];
-      setTimeout(function () {
-        targetItem.focus();
-      }, 0);
-    },
     newPostit: function () {
       popSound.play();
-      this.postits.push({
-        id: moment().valueOf(),
+      const newMemoId = moment().valueOf();
+      this.$set(this.memoItems, newMemoId, {
         text: "",
         createdAt: moment().format("YYYY-MM-DD"),
         createdAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+        status: MemoStatus.TODO,
       });
-      this.isEditting.push(false);
-      ipcRenderer.send("saveTodos", this.postits);
+      ipcRenderer.send("saveTodos", this.memoItems);
     },
-    remove: function (index) {
+    remove: function (memoId) {
       deleteSound.play();
-      const target = this.postits[index];
-      target.date = moment().format("YYYY-MM-DD");
-      target.datetime = moment().format("YYYY-MM-DDTHH:mm:ss");
-      this.postits.splice(index, 1);
-      this.isEditting.splice(index, 1);
-      ipcRenderer.send("saveTodos", this.postits);
-      ipcRenderer.send("addToDeletedAndSave", target);
+      const todoObject = this.memoItems[memoId];
+      this.$delete(this.memoItems, memoId);
+      ipcRenderer.send("saveTodos", this.memoItems);
+      ipcRenderer.send("addToDeletedAndSave", todoObject);
     },
-    complete: function (index) {
+    complete: function (memoId) {
       completeSound.play();
-      const target = this.postits[index];
-      target.date = moment().format("YYYY-MM-DD");
-      target.datetime = moment().format("YYYY-MM-DDTHH:mm:ss");
-      this.postits.splice(index, 1);
-      this.isEditting.splice(index, 1);
-      ipcRenderer.send("saveTodos", this.postits);
-      ipcRenderer.send("addToCompletedAndSave", target);
+      const todoObject = this.memoItems[memoId];
+      this.$delete(this.memoItems, memoId);
+      ipcRenderer.send("saveTodos", this.memoItems);
+      ipcRenderer.send("addToCompletedAndSave", todoObject);
     },
   },
 };

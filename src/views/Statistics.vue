@@ -15,7 +15,7 @@
       <div>{{ dateRange[0] }}~{{ dateRange[1] }}</div>
       <div>
         # of Memos :
-        {{ targetpostits.length }}
+        {{ memoItems.length }}
       </div>
     </v-container>
 
@@ -23,7 +23,7 @@
     <v-container>
       <h1>📈 Categories</h1>
       <v-container mt-3 mb-5 pa-8 class="data-area">
-        <CategoryPieChart :memoList="targetpostits" :dateRange="dateRange" />
+        <CategoryPieChart :memoItems="memoItems" :dateRange="dateRange" />
       </v-container>
     </v-container>
 
@@ -33,7 +33,7 @@
       <v-container mt-3 mb-5 pa-8 class="data-area">
         <CategoryLineChart
           chartId="categoryLineChart"
-          :memoList="targetpostits"
+          :memoItems="memoItems"
           :dateRange="dateRange"
         />
       </v-container>
@@ -43,7 +43,7 @@
     <v-container>
       <h1>📜 Summary</h1>
       <v-container mt-3 mb-5 pa-5 class="data-area">
-        <Summary :memoList="targetpostits" />
+        <Summary :memoItems="memoItems" />
       </v-container>
     </v-container>
   </v-container>
@@ -77,28 +77,25 @@ export default {
     });
   },
   computed: {
-    targetpostits: function () {
-      return (this.allPostits.todo ? this.allPostits.todo : [])
-        .concat(
-          this.allPostits.deleted
-            ? this.allPostits.deleted.filter(
-                (p) =>
-                  (p.createdAt >= this.dateRange[0] &&
-                    p.createdAt < this.dateRange[1]) ||
-                  (p.date >= this.dateRange[0] && p.date < this.dateRange[1])
-              )
-            : []
-        )
-        .concat(
-          this.allPostits.completed
-            ? this.allPostits.completed.filter(
-                (p) =>
-                  (p.createdAt >= this.dateRange[0] &&
-                    p.createdAt < this.dateRange[1]) ||
-                  (p.date >= this.dateRange[0] && p.date < this.dateRange[1])
-              )
-            : []
-        );
+    memoItems: function () {
+      // 기간 범위 내의 completed 메모 구성
+      const targetCompletedMemoItems = {};
+      Object.keys(this.allPostits.completed).forEach((memoId) => {
+        const memoObject = this.allPostits.completed[memoId];
+        if (
+          (memoObject.createdAt >= this.dateRange[0] &&
+            memoObject.createdAt < this.dateRange[1]) ||
+          (memoObject.date >= this.dateRange[0] &&
+            memoObject.date < this.dateRange[1])
+        ) {
+          targetCompletedMemoItems[memoId] = memoObject;
+        }
+      });
+
+      return Object.values({
+        ...this.allPostits.todo,
+        ...targetCompletedMemoItems,
+      });
     },
   },
   watch: {

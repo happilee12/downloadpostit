@@ -1,5 +1,5 @@
 const moment = require("moment");
-import { categoryColor, subcategoryColor } from "@/js/index";
+import { categoryColor, subcategoryColor } from "@/js/common";
 
 export const getDateListInBetween = (startDate, endDate) => {
   try {

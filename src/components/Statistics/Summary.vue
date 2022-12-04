@@ -21,14 +21,14 @@ import { memoGroupedByCategory } from "@/js/categoryStstisticsChart";
 export default {
   name: "Summary",
   props: {
-    memoList: {
+    memoItems: {
       type: Array,
     },
   },
   computed: {
     dataByCategory: function () {
       try {
-        const groupedMemo = memoGroupedByCategory(this.memoList);
+        const groupedMemo = memoGroupedByCategory(this.memoItems);
         const { undefined, ...memoWithCategory } = groupedMemo;
         console.log("memoWithCategory", memoWithCategory);
 

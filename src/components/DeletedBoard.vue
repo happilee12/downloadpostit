@@ -11,7 +11,7 @@
       >
         <v-card class="postit-card mx-auto">
           <v-card-subtitle class="pb-0">
-            # {{ index }} {{ postit.date ? postit.date : "" }}
+            # {{ index }} {{ postit.deletedAt || "" }}
           </v-card-subtitle>
           <div class="postit-textbox">{{ postit.text }}</div>
           <v-row class="postit-button-area">

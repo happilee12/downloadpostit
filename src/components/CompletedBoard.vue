@@ -20,12 +20,18 @@
         sm="6"
         md="4"
         lg="3"
-        v-for="(postit, index) in displayedPostits"
-        :key="`postit-` + index"
+        v-for="(memoObject, id) in memoItems"
+        :key="`postit-` + id"
       >
-        <v-card class="postit-card mx-auto">
+        <Memo
+          :id="id"
+          :memoObject="memoObject"
+          :idEditting="false"
+          :remove="remove"
+        />
+        <!-- <v-card class="postit-card mx-auto">
           <v-card-subtitle class="pb-0">
-            # {{ index }} {{ postit.date ? postit.date : "" }}
+            # {{ index }} {{ postit.completedAt || "" }}
           </v-card-subtitle>
           <textarea
             class="postit-editting-textarea"
@@ -44,7 +50,7 @@
               </v-btn>
             </v-card-actions>
           </v-row>
-        </v-card>
+        </v-card> -->
       </v-col>
     </v-row>
   </v-container>
@@ -53,43 +59,49 @@
 <script>
 const { ipcRenderer } = require("electron");
 import deleteSoundEffect from "../assets/delete.mp3";
+import Memo from "@/components/Memo.vue";
 const deleteSound = new Audio(deleteSoundEffect);
 const ALL = "ALL";
 import { setCategory } from "@/js/memo";
 
 export default {
   name: "AllBoard",
+  components: { Memo },
   data: () => ({
-    postits: [],
-    isEditting: [],
+    allMemoItems: [],
     searchText: "",
     subCategory: "",
   }),
   mounted() {
     ipcRenderer.send("setCompleted");
     ipcRenderer.on("completed", (event, completedPostits) => {
-      this.postits = [...completedPostits].reverse();
-      this.isEditting = new Array(completedPostits.length).fill(false);
+      this.allMemoItems = completedPostits;
+      console.log("this.allMemoItems", this.allMemoItems);
     });
   },
   computed: {
     categoryList: function () {
       return [
         ALL,
-        ...new Set(this.postits.map((item) => item.subCategory)),
+        ...new Set(
+          Object.entries(this.allMemoItems).map((item) => item.subCategory)
+        ),
       ].filter((item) => item);
     },
-    displayedPostits: function () {
+    /** 화면에 노출할 메모 */
+    memoItems: function () {
+      console.log("this.allMemoItems", this.allMemoItems);
       /** filter by selected category */
       let categoryFiltered;
-      if (!this.subCategory || !this.postits || this.subCategory == ALL) {
-        categoryFiltered = this.postits;
+      if (!this.subCategory || !this.allMemoItems || this.subCategory == ALL) {
+        categoryFiltered = this.allMemoItems;
       } else {
-        categoryFiltered = this.postits.filter(
+        categoryFiltered = this.allMemoItems.filter(
           (item) => item.subCategory == this.subCategory
         );
       }
 
+      console.log("categoryFiltered", categoryFiltered);
       /** filter by searchKeyword */
       if (!this.searchText) return categoryFiltered;
       else {
@@ -100,47 +112,12 @@ export default {
     },
   },
   methods: {
-    handleTabInput: function (e) {
-      if (e.key == "Tab") {
-        e.preventDefault();
-        const targetTextArea = e.target;
-        var start = targetTextArea.selectionStart;
-        var end = targetTextArea.selectionEnd;
-
-        // set textarea value to: text before caret + tab + text after caret
-        targetTextArea.value =
-          targetTextArea.value.substring(0, start) +
-          "\t" +
-          targetTextArea.value.substring(end);
-
-        // put caret at right position again
-        targetTextArea.selectionStart = targetTextArea.selectionEnd = start + 1;
-      }
-    },
-    startEditting: function (index) {
-      this.$set(this.isEditting, index, true);
-      const targetItem = this.$refs.postitTextarea[index];
-      setTimeout(function () {
-        targetItem.focus();
-      }, 0);
-      console.log("started editting", index);
-    },
-    endEditting: function (displayIndex) {
-      this.$set(this.isEditting, displayIndex, false);
-      const postitIndex = this.postits.findIndex(
-        (memo) => memo.id == this.displayedPostits[displayIndex].id
-      );
-      this.postits[postitIndex] = setCategory(this.postits[postitIndex]);
-      ipcRenderer.send("saveCompleted", [...this.postits].reverse());
-    },
-    remove: function (id) {
+    remove: function (memoId) {
       deleteSound.play();
-      const targetIndex = this.postits.findIndex((memo) => memo.id == id);
-      const target = this.postits[targetIndex];
-      this.postits.splice(targetIndex, 1);
-      this.isEditting.splice(targetIndex, 1);
-      ipcRenderer.send("saveCompleted", [...this.postits].reverse());
-      ipcRenderer.send("addToDeletedAndSave", target);
+      const targetMemo = this.memoItems[memoId];
+      this.$delete(this.memoItems, memoId);
+      ipcRenderer.send("saveCompleted", this.memoItems);
+      ipcRenderer.send("addToDeletedAndSave", targetMemo);
     },
   },
 };

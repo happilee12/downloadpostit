@@ -16,7 +16,7 @@ export default {
   name: "CategoryPieChart",
   components: { PieChart },
   props: {
-    memoList: {
+    memoItems: {
       type: Array,
     },
     dateRange: {
@@ -28,7 +28,7 @@ export default {
     pieChartData: function () {
       try {
         const { category, subcategory } = getCategoryRatioDataset(
-          this.memoList
+          this.memoItems
         );
         return {
           category,
