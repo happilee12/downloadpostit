@@ -136,7 +136,7 @@ export const getTimeSeriesCetegoryCountDataset = (memoList, dateList) => {
 const getTargetMemoList = (memoList, targetDate) => {
   const filteredMemo = memoList.filter((p) => {
     if (p.createdAt > targetDate) return false;
-    if (p.date && p.date < targetDate) return false;
+    if (p.completedAt && p.completedAt < targetDate) return false;
     return true;
   });
   // console.log("filteredMemo", filteredMemo);

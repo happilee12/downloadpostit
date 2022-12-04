@@ -41,7 +41,7 @@
 
     <!-- 전체 내용 -->
     <v-container>
-      <h1>📜 Summary</h1>
+      <h1>📜 Timeline</h1>
       <v-container mt-3 mb-5 pa-5 class="data-area">
         <Summary :memoItems="memoItems" />
       </v-container>
@@ -80,17 +80,18 @@ export default {
     memoItems: function () {
       // 기간 범위 내의 completed 메모 구성
       const targetCompletedMemoItems = {};
-      Object.keys(this.allMemos.completed).forEach((memoId) => {
-        const memoObject = this.allMemos.completed[memoId];
-        if (
-          (memoObject.createdAt >= this.dateRange[0] &&
-            memoObject.createdAt < this.dateRange[1]) ||
-          (memoObject.date >= this.dateRange[0] &&
-            memoObject.date < this.dateRange[1])
-        ) {
-          targetCompletedMemoItems[memoId] = memoObject;
-        }
-      });
+      this.allMemos.completed &&
+        Object.keys(this.allMemos.completed).forEach((memoId) => {
+          const memoObject = this.allMemos.completed[memoId];
+          if (
+            (memoObject.createdAt >= this.dateRange[0] &&
+              memoObject.createdAt < this.dateRange[1]) ||
+            (memoObject.completedAt >= this.dateRange[0] &&
+              memoObject.completedAt < this.dateRange[1])
+          ) {
+            targetCompletedMemoItems[memoId] = memoObject;
+          }
+        });
 
       return Object.values({
         ...this.allMemos.todo,

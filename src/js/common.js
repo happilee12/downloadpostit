@@ -54,6 +54,12 @@ export const setCategory = (memoData) => {
   return memoData;
 };
 
+/** 메모 카테고리 업데이트 */
+export const getMemoContent = (text) => {
+  if (text[0] == ".") return text.split("\n").slice(1).join("\n");
+  return text;
+};
+
 export const getTimestamp = (tag) => {
   return {
     [`${tag}At`]: moment().format("YYYY-MM-DD"),

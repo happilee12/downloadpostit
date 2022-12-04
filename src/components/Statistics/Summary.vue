@@ -9,7 +9,9 @@
           v-for="(memoObject, index) in subcategoryData"
         >
           <p class="created-at-text">{{ memoObject.createdAt }}</p>
-          <p style="white-space: break-spaces">{{ memoObject.text }}</p>
+          <p style="white-space: break-spaces">
+            {{ excludeCategory(memoObject.text) }}
+          </p>
         </v-container>
       </template>
     </v-container>
@@ -18,6 +20,8 @@
 
 <script>
 import { memoGroupedByCategory } from "@/js/categoryStstisticsChart";
+const { getMemoContent } = require("@/js/common");
+
 export default {
   name: "Summary",
   props: {
@@ -30,8 +34,6 @@ export default {
       try {
         const groupedMemo = memoGroupedByCategory(this.memoItems);
         const { undefined, ...memoWithCategory } = groupedMemo;
-        console.log("memoWithCategory", memoWithCategory);
-
         return memoWithCategory;
       } catch (e) {
         console.log(e);
@@ -40,6 +42,11 @@ export default {
           datasets: [],
         };
       }
+    },
+  },
+  methods: {
+    excludeCategory: function (text) {
+      return getMemoContent(text);
     },
   },
 };
