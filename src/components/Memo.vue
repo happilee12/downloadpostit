@@ -1,7 +1,7 @@
 <template>
   <v-card class="postit-card mx-auto">
     <v-card-subtitle class="pb-0">
-      # {{ memoObject.createdAt }}
+      {{ memoObject.createdAt }} ~ {{ memoObject.completedAt || "" }}
     </v-card-subtitle>
     <textarea
       class="postit-editting-textarea"
@@ -33,6 +33,7 @@
         <v-btn
           color="primary"
           text
+          @click="removeCompletely(id)"
           v-if="memoObject.status == this.MemoStatus.DELETED"
         >
           완전삭제
@@ -66,6 +67,9 @@ export default {
     complete: {
       type: Function,
     },
+    removeCompletely: {
+      type: Function,
+    },
   },
   data: () => ({
     isEditting: false,
@@ -97,26 +101,10 @@ export default {
     startEditting: function () {
       this.isEditting = true;
       console.log("start Editting", this.id);
-      //   this.$set(this.isEditting, index, true);
-      //   const targetItem = this.$refs.postitTextarea[index];
-      //   setTimeout(function () {
-      //     targetItem.focus();
-      //   }, 0);
-      //   console.log("started editting", index);
     },
     endEditting: function () {
       this.isEditting = false;
-      //   console.log("end Editting", this.id);
-      const newMemoObject = setCategory(this.memoObject);
-      //   console.log("newMemoObject", newMemoObject);
-      this.memoInstance.updateMemo(
-        this.id,
-        newMemoObject,
-        this.memoObject.status
-      );
-    },
-    removeThisMemo: function () {
-      this.remove(this.id);
+      this.memoObject = setCategory(this.memoObject);
     },
   },
 };

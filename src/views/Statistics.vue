@@ -66,22 +66,22 @@ export default {
       moment().subtract(7, "d").format("YYYY-MM-DD"),
       moment().add(1, "d").format("YYYY-MM-DD"),
     ],
-    allPostits: [],
+    allMemos: [],
   }),
   mounted() {
-    ipcRenderer.send("setAll");
-    ipcRenderer.on("all", (event, allPostits) => {
-      this.allPostits = allPostits;
+    ipcRenderer.send("setAllBoard");
+    ipcRenderer.once("allBoard", (event, allMemos) => {
+      this.allMemos = allMemos;
       this.dateRangeOption = 0;
-      console.log(this.allPostits);
+      console.log(this.allMemos);
     });
   },
   computed: {
     memoItems: function () {
       // 기간 범위 내의 completed 메모 구성
       const targetCompletedMemoItems = {};
-      Object.keys(this.allPostits.completed).forEach((memoId) => {
-        const memoObject = this.allPostits.completed[memoId];
+      Object.keys(this.allMemos.completed).forEach((memoId) => {
+        const memoObject = this.allMemos.completed[memoId];
         if (
           (memoObject.createdAt >= this.dateRange[0] &&
             memoObject.createdAt < this.dateRange[1]) ||
@@ -93,7 +93,7 @@ export default {
       });
 
       return Object.values({
-        ...this.allPostits.todo,
+        ...this.allMemos.todo,
         ...targetCompletedMemoItems,
       });
     },

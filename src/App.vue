@@ -6,7 +6,7 @@
         <v-tab @click="redirectToCompleted">히스토리</v-tab>
         <v-tab @click="redirectToStatistics">통계</v-tab>
       </v-tabs>
-      <v-btn @click="redirectToDeleted" icon><v-icon>mdi-delete</v-icon></v-btn>
+      <!-- <v-btn @click="redirectToDeleted" icon><v-icon>mdi-delete</v-icon></v-btn> -->
     </v-app-bar>
 
     <v-main>
@@ -26,9 +26,6 @@ export default {
     },
     redirectToCompleted() {
       this.$router.push({ name: "Completed" }).catch(() => {});
-    },
-    redirectToDeleted() {
-      this.$router.push({ name: "Deleted" }).catch(() => {});
     },
     redirectToStatistics() {
       this.$router.push({ name: "Statistics" }).catch(() => {});

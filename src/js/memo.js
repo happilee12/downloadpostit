@@ -5,24 +5,24 @@ const deleteSound = new Audio(deleteSoundEffect);
 const moment = require("moment");
 
 let memoInstance = null;
-export class Memo {
-  constructor() {
-    if (memoInstance) {
-      console.log("Return existing Memo instance : ");
-      return memoInstance;
-    }
+// export class Memo {
+//   constructor() {
+//     if (memoInstance) {
+//       console.log("Return existing Memo instance : ");
+//       return memoInstance;
+//     }
 
-    console.log("Constructing a new Memo instance : ");
-    ipcRenderer.send("setAll");
-    ipcRenderer.once("all", (event, allData) => {
-      this.todo = allData.todo;
-      this.deleted = allData.deleted;
-      this.completed = allData.completed;
-      console.log("Constructing Memo instance data : ", this.allData);
-    });
-    memoInstance = this;
-  }
-}
+//     console.log("Constructing a new Memo instance : ");
+//     ipcRenderer.send("setAll");
+//     ipcRenderer.once("all", (event, allData) => {
+//       this.todo = allData.todo;
+//       this.deleted = allData.deleted;
+//       this.completed = allData.completed;
+//       console.log("Constructing Memo instance data : ", this.allData);
+//     });
+//     memoInstance = this;
+//   }
+// }
 
 export const setCategory = (memoData) => {
   if (memoData.text[0] == ".") {

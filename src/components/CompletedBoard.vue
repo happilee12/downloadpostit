@@ -1,10 +1,15 @@
 <template>
   <v-container mt-5>
-    <v-row>
-      <v-col cols="12" md="9" sm="12">
+    <v-row class="d-flex flex-row-reverse">
+      <v-btn text primary @click="redirectToDeleted">
+        Manage deleted <v-icon>mdi-delete</v-icon>
+      </v-btn>
+    </v-row>
+    <v-row class="filter-handler-row">
+      <v-col cols="12" md="9" xs="12">
         <v-text-field v-model="searchText" label="Search" solo></v-text-field>
       </v-col>
-      <v-col cols="12" md="3" sm="12">
+      <v-col cols="12" md="3" xs="12">
         <v-select
           :items="categoryList"
           v-model="subCategory"
@@ -20,7 +25,7 @@
         sm="6"
         md="4"
         lg="3"
-        v-for="(memoObject, id) in memoItems"
+        v-for="([id, memoObject], index) in Object.entries(memoItems).reverse()"
         :key="`postit-` + id"
       >
         <Memo
@@ -29,28 +34,6 @@
           :idEditting="false"
           :remove="remove"
         />
-        <!-- <v-card class="postit-card mx-auto">
-          <v-card-subtitle class="pb-0">
-            # {{ index }} {{ postit.completedAt || "" }}
-          </v-card-subtitle>
-          <textarea
-            class="postit-editting-textarea"
-            :ref="'postitTextarea'"
-            @focus="startEditting(index)"
-            @blur="endEditting(index)"
-            @keydown="handleTabInput"
-            v-model="postit.text"
-            placeholder="메모할 내용을 입력하세요."
-          ></textarea>
-
-          <v-row class="postit-button-area" v-if="!isEditting[index]">
-            <v-card-actions>
-              <v-btn color="primary" text @click="remove(postit.id)">
-                삭제
-              </v-btn>
-            </v-card-actions>
-          </v-row>
-        </v-card> -->
       </v-col>
     </v-row>
   </v-container>
@@ -62,71 +45,89 @@ import deleteSoundEffect from "../assets/delete.mp3";
 import Memo from "@/components/Memo.vue";
 const deleteSound = new Audio(deleteSoundEffect);
 const ALL = "ALL";
-import { setCategory } from "@/js/memo";
+import { filterObjectValues } from "@/js/common";
+import { MemoStatus } from "@/js/constants";
 
 export default {
   name: "AllBoard",
   components: { Memo },
   data: () => ({
-    allMemoItems: [],
+    memoStatusAll: {},
     searchText: "",
     subCategory: "",
   }),
   mounted() {
-    ipcRenderer.send("setCompleted");
-    ipcRenderer.on("completed", (event, completedPostits) => {
-      this.allMemoItems = completedPostits;
-      console.log("this.allMemoItems", this.allMemoItems);
+    ipcRenderer.send("setAllBoard");
+    ipcRenderer.once("allBoard", (event, allMemos) => {
+      this.memoStatusAll = {
+        ...allMemos.completed,
+        ...allMemos.todo,
+      };
     });
   },
   computed: {
     categoryList: function () {
-      return [
-        ALL,
-        ...new Set(
-          Object.entries(this.allMemoItems).map((item) => item.subCategory)
-        ),
-      ].filter((item) => item);
+      const categoryListAll = Object.values(this.memoStatusAll).map(
+        (item) => item.subCategory
+      );
+      return [ALL, ...new Set(categoryListAll)].filter((item) => item);
     },
     /** 화면에 노출할 메모 */
     memoItems: function () {
-      console.log("this.allMemoItems", this.allMemoItems);
       /** filter by selected category */
       let categoryFiltered;
-      if (!this.subCategory || !this.allMemoItems || this.subCategory == ALL) {
-        categoryFiltered = this.allMemoItems;
+      if (!this.subCategory || !this.memoStatusAll || this.subCategory == ALL) {
+        categoryFiltered = this.memoStatusAll;
       } else {
-        categoryFiltered = this.allMemoItems.filter(
-          (item) => item.subCategory == this.subCategory
+        categoryFiltered = filterObjectValues(
+          this.memoStatusAll,
+          (objectItem) => {
+            return objectItem.subCategory == this.subCategory;
+          }
         );
       }
 
-      console.log("categoryFiltered", categoryFiltered);
       /** filter by searchKeyword */
       if (!this.searchText) return categoryFiltered;
       else {
-        return categoryFiltered.filter((item) =>
-          item.text.includes(this.searchText)
-        );
+        console.log(this.searchText);
+        return filterObjectValues(categoryFiltered, (objectItem) => {
+          return objectItem.text.includes(this.searchText);
+        });
       }
     },
   },
   methods: {
     remove: function (memoId) {
       deleteSound.play();
-      const targetMemo = this.memoItems[memoId];
-      this.$delete(this.memoItems, memoId);
-      ipcRenderer.send("saveCompleted", this.memoItems);
-      ipcRenderer.send("addToDeletedAndSave", targetMemo);
+      const targetMemo = this.memoStatusAll[memoId];
+      /** 화면에서 삭제 */
+      this.$delete(this.memoStatusAll, memoId);
+      if (targetMemo.status == MemoStatus.TODO) {
+        ipcRenderer.send("deleteFromTodos", memoId);
+      } else if (targetMemo.status == MemoStatus.COMPLETED) {
+        ipcRenderer.send("deleteFromCompleted", memoId);
+      }
+      ipcRenderer.send("addToDeletedAndSave", memoId, {
+        ...targetMemo,
+        status: MemoStatus.DELETED,
+        deletedAt: moment().format("YYYY-MM-DD"),
+        deletedAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+      });
+    },
+    redirectToDeleted() {
+      this.$router.push({ name: "Deleted" }).catch(() => {});
     },
   },
 };
 </script>
 
 <style lang="scss">
-.postit-button-area {
-  position: absolute;
-  bottom: 10px;
-  right: 14px;
+.filter-handler-row {
+  margin-top: 30px !important;
+  // 검색/필터 하단의 공백 제거
+  .v-text-field.v-text-field--enclosed .v-text-field__details {
+    display: none;
+  }
 }
 </style>

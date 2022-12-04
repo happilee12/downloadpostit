@@ -6,22 +6,15 @@
         sm="6"
         md="4"
         lg="3"
-        v-for="(postit, index) in postits"
-        :key="`postit-` + index"
+        v-for="(memoObject, id) in memoItems"
+        :key="`postit-` + id"
       >
-        <v-card class="postit-card mx-auto">
-          <v-card-subtitle class="pb-0">
-            # {{ index }} {{ postit.deletedAt || "" }}
-          </v-card-subtitle>
-          <div class="postit-textbox">{{ postit.text }}</div>
-          <v-row class="postit-button-area">
-            <v-card-actions>
-              <v-btn color="primary" text @click="removeCompletely(index)">
-                완전삭제
-              </v-btn>
-            </v-card-actions>
-          </v-row>
-        </v-card>
+        <Memo
+          :id="id"
+          :memoObject="memoObject"
+          :idEditting="false"
+          :removeCompletely="removeCompletely"
+        />
       </v-col>
     </v-row>
   </v-container>
@@ -31,24 +24,28 @@
 const { ipcRenderer } = require("electron");
 import deleteSoundEffect from "../assets/delete.mp3";
 const deleteSound = new Audio(deleteSoundEffect);
+import Memo from "@/components/Memo.vue";
 
 export default {
   name: "DeletedBoard",
+  components: { Memo },
+
   data: () => ({
-    postits: [],
+    memoItems: {},
   }),
   mounted() {
-    ipcRenderer.send("setDeleted");
-    ipcRenderer.on("deleted", (event, deletedPostits) => {
-      this.postits = deletedPostits;
+    ipcRenderer.send("setDeletedBoard");
+    ipcRenderer.once("deletedBoard", (event, deletedPostits) => {
+      this.memoItems = deletedPostits;
     });
   },
   computed: {},
   methods: {
-    removeCompletely: function (index) {
+    removeCompletely: function (memoId) {
+      console.log();
       deleteSound.play();
-      this.postits.splice(index, 1);
-      ipcRenderer.send("saveDeleted", this.postits);
+      this.$delete(this.memoItems, memoId); // 화면에서 삭제
+      ipcRenderer.send("deleteFromDeleted", memoId); // 데이터 업데이트
     },
   },
 };

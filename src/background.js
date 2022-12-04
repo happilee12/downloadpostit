@@ -43,10 +43,9 @@ async function createWindow() {
 
   win.webContents.on("did-finish-load", (evt) => {
     // onWebcontentsValue 이벤트 송신
-    console.log(appData);
-    win.webContents.send("todos", appData.todo);
-    win.webContents.send("deleted", appData.deleted);
-    win.webContents.send("completed", appData.completed);
+    win.webContents.send("todoBoard", appData.todo);
+    win.webContents.send("deletedBoard", appData.deleted);
+    win.webContents.send("allBoard", appData.completed);
   });
 
   if (process.env.WEBPACK_DEV_SERVER_URL) {
@@ -60,49 +59,62 @@ async function createWindow() {
   }
 
   // set postit data
-  ipcMain.on("setTodos", (event) => {
-    win.webContents.send("todos", appData.todo);
+  ipcMain.on("setTodoBoard", (event) => {
+    win.webContents.send("todoBoard", appData.todo);
   });
-  ipcMain.on("setDeleted", (event) => {
-    win.webContents.send("deleted", appData.deleted);
-  });
-  ipcMain.on("setCompleted", (event) => {
+  ipcMain.on("setAllBoard", (event) => {
     console.log("appData.completed", appData.completed);
-
-    win.webContents.send("completed", appData.completed);
+    win.webContents.send("allBoard", {
+      completed: appData.completed,
+      todo: appData.todo,
+    });
   });
-  ipcMain.on("setAll", (event) => {
-    win.webContents.send("all", appData);
+  ipcMain.on("setDeletedBoard", (event) => {
+    win.webContents.send("deletedBoard", appData.deleted);
   });
+  // ipcMain.on("setAll", (event) => {
+  //   win.webContents.send("all", appData);
+  // });
 
-  // save Data
+  /** 카테고리 데이터 전체 업데이트 */
   ipcMain.on("saveTodos", (event, todoPostitList) => {
     appData.todo = todoPostitList;
     fs.writeFileSync(datapath, JSON.stringify(appData));
   });
-  ipcMain.on("addToTodosAndSave", (event, id, memoObject) => {
-    // appData.todo.push(targetPostit)
-    appData.todo[id] = memoObject;
+  ipcMain.on("saveCompleted", (event, completedPostitList) => {
+    appData.completed = completedPostitList;
     fs.writeFileSync(datapath, JSON.stringify(appData));
   });
-
   ipcMain.on("saveDeleted", (event, deletedPostitList) => {
     appData.deleted = deletedPostitList;
     fs.writeFileSync(datapath, JSON.stringify(appData));
   });
 
+  /** 카테고리에 데이터 추가 */
+  ipcMain.on("addToTodosAndSave", (event, id, memoObject) => {
+    appData.todo[id] = memoObject;
+    fs.writeFileSync(datapath, JSON.stringify(appData));
+  });
   ipcMain.on("addToDeletedAndSave", (event, id, memoObject) => {
     appData.deleted[id] = memoObject;
     fs.writeFileSync(datapath, JSON.stringify(appData));
   });
-
-  ipcMain.on("saveCompleted", (event, completedPostitList) => {
-    appData.completed = completedPostitList;
+  ipcMain.on("addToCompletedAndSave", (event, id, memoObject) => {
+    appData.completed[id] = memoObject;
     fs.writeFileSync(datapath, JSON.stringify(appData));
   });
 
-  ipcMain.on("addToCompletedAndSave", (event, id, memoObject) => {
-    appData.completed[id] = memoObject;
+  /** 카테고리에 데이터 삭제 */
+  ipcMain.on("deleteFromTodos", (event, id) => {
+    delete appData.todo[id];
+    fs.writeFileSync(datapath, JSON.stringify(appData));
+  });
+  ipcMain.on("deleteFromCompleted", (event, id) => {
+    delete appData.completed[id];
+    fs.writeFileSync(datapath, JSON.stringify(appData));
+  });
+  ipcMain.on("deleteFromDeleted", (event, id) => {
+    delete appData.deleted[id];
     fs.writeFileSync(datapath, JSON.stringify(appData));
   });
 }

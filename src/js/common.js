@@ -20,3 +20,21 @@ export const subcategoryColor = (index, subindex) => {
   const colorLength = categoryColorPalette[index % PALETTE_LENGTH].length;
   return categoryColorPalette[index % PALETTE_LENGTH][subindex % colorLength];
 };
+
+/** Object의 value중 condition에 맞는것만 반환 */
+export const filterObjectValues = (targetObject, condition) => {
+  /** targetObject가 비어있는 경우 에러핸들링 */
+  if (!targetObject) {
+    return targetObject;
+  }
+
+  const newObject = {};
+  Object.keys(targetObject).forEach((objectKey) => {
+    const objectItem = targetObject[objectKey];
+    /** condition 맞는 아이템만 newObject에 추가  */
+    if (condition(objectItem)) {
+      newObject[objectKey] = objectItem;
+    }
+  });
+  return newObject;
+};

@@ -52,13 +52,11 @@ export default {
     memoInstance: {},
   }),
   mounted() {
-    ipcRenderer.send("setTodos");
-    ipcRenderer.once("todos", (event, todos) => {
+    ipcRenderer.send("setTodoBoard");
+    ipcRenderer.once("todoBoard", (event, todos) => {
       this.memoItems = todos;
       console.log("this.postits", this.memoItems);
     });
-    this.memoInstance = new Memo();
-    console.log("memoInstance", this.memoInstance);
   },
   computed: {},
   methods: {
@@ -75,17 +73,25 @@ export default {
     },
     remove: function (memoId) {
       deleteSound.play();
-      const todoObject = this.memoItems[memoId];
-      this.$delete(this.memoItems, memoId);
-      ipcRenderer.send("saveTodos", this.memoItems);
-      ipcRenderer.send("addToDeletedAndSave", todoObject);
+      ipcRenderer.send("addToDeletedAndSave", memoId, {
+        ...this.memoItems[memoId],
+        status: MemoStatus.DELETED,
+        deletedAt: moment().format("YYYY-MM-DD"),
+        deletedAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+      }); // deleted 데이터에 추가
+      this.$delete(this.memoItems, memoId); // 화면에서 삭제
+      ipcRenderer.send("deleteFromTodos", memoId); // To-do 데이터에서 삭제
     },
     complete: function (memoId) {
       completeSound.play();
-      const todoObject = this.memoItems[memoId];
-      this.$delete(this.memoItems, memoId);
-      ipcRenderer.send("saveTodos", this.memoItems);
-      ipcRenderer.send("addToCompletedAndSave", todoObject);
+      ipcRenderer.send("addToCompletedAndSave", memoId, {
+        ...this.memoItems[memoId],
+        status: MemoStatus.COMPLETED,
+        completedAt: moment().format("YYYY-MM-DD"),
+        completedAtDateTime: moment().format("YYYY-MM-DDTHH:mm:ss"),
+      }); // completed 데이터에 추가
+      this.$delete(this.memoItems, memoId); // 화면에서 삭제
+      ipcRenderer.send("deleteFromTodos", memoId); // To-do 데이터에서 삭제
     },
   },
 };
